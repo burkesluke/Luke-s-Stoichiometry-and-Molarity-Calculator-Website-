@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luke's Stoichiometry Calculator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 440px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+        .bot-box {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .bot-box.error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        select, input {
+            width: 100%;
+            padding: 0.65rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧪 {{ bot_name }}'s Stoichiometry Calculator</h1>
+
+        <div class="bot-box {% if error %}error{% endif %}">
+            {{ message }}
+        </div>
+
+        <form action="/calculate" method="post">
+            <div class="form-group">
+                <label for="calc_type">What are you solving for?</label>
+                <select name="calc_type" id="calc_type" onchange="updateFormFields()">
+                    <optgroup label="Molarity Problems">
+                        <option value="concentration" {% if selected_calc == 'concentration' %}selected{% endif %}>Concentration (mol/L)</option>
+                        <option value="moles" {% if selected_calc == 'moles' %}selected{% endif %}>Moles (from Molarity & Volume)</option>
+                        <option value="volume" {% if selected_calc == 'volume' %}selected{% endif %}>Volume (Liters)</option>
+                    </optgroup>
+                    <optgroup label="Stoichiometry Problems">
+                        <option value="mass" {% if selected_calc == 'mass' %}selected{% endif %}>Mass (Grams)</option>
+                        <option value="number_of_moles" {% if selected_calc == 'number_of_moles' %}selected{% endif %}>Number of Moles (from Grams)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="compound_group">
+                <label for="compound">Chemical Compound (e.g., H2O, NaCl):</label>
+                <input type="text" name="compound" id="compound" placeholder="H2O">
+            </div>
+
+            <div class="form-group" id="val1_group">
+                <label for="val1" id="val1_label">Number of moles:</label>
+                <input type="number" step="any" name="val1" id="val1" required>
+            </div>
+
+            <div class="form-group" id="val2_group">
+                <label for="val2" id="val2_label">Volume of solution (liters):</label>
+                <input type="number" step="any" name="val2" id="val2">
+            </div>
+
+            <button type="submit">Calculate</button>
+        </form>
+    </div>
+
+    <script>
+        function updateFormFields() {
+            const type = document.getElementById("calc_type").value;
+            const compoundGroup = document.getElementById("compound_group");
+            const compoundInput = document.getElementById("compound");
+            const val1Label = document.getElementById("val1_label");
+            const val2Group = document.getElementById("val2_group");
+            const val2Input = document.getElementById("val2");
+
+            // Reset visibility and requirements
+            compoundGroup.classList.add("hidden");
+            compoundInput.required = false;
+            val2Group.classList.remove("hidden");
+            val2Input.required = true;
+
+            if (type === "concentration") {
+                val1Label.textContent = "Number of moles:";
+                val2Label.textContent = "Volume of the solution (liters):";
+            } else if (type === "moles") {
+                val1Label.textContent = "Concentration (mol/L):";
+                val2Label.textContent = "Volume of the solution (liters):";
+            } else if (type === "volume") {
+                val1Label.textContent = "Number of moles:";
+                val2Label.textContent = "Concentration of the solution (mol/L):";
+            } else if (type === "mass") {
+                compoundGroup.classList.remove("hidden");
+                compoundInput.required = true;
+                val1Label.textContent = "Number of moles:";
+                val2Group.classList.add("hidden");
+                val2Input.required = false;
+            } else if (type === "number_of_moles") {
+                compoundGroup.classList.remove("hidden");
+                compoundInput.required = true;
+                val1Label.textContent = "Number of grams:";
+                val2Group.classList.add("hidden");
+                val2Input.required = false;
+            }
+        }
+
+        // Run once on page load to match selected option
+        updateFormFields();
+    </script>
+</body>
+</html>
