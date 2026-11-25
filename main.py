@@ -1,10 +1,12 @@
+from pathlib import Path
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from molmass import Formula, FormulaError
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 BOT_NAME = "Luke"
 
